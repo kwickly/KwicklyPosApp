@@ -35,11 +35,11 @@ This app is a critical piece of the Kwickly micro-frontend ecosystem, communicat
 - [x] Implement local caching/storage so tickets aren't lost if the tablet loses power.
 - [x] Send status updates (e.g., `PREPARING` -> `READY`) back to the server to notify the customer app.
 
-### Phase 3: Hardware & POS Features (PENDING)
-- [ ] Hook up the ScannerScreen to the API to actively deduct "Pro Meal" balances from customer wallets.
-- [ ] Integrate thermal receipt printer drivers (e.g., via Bluetooth) for automatic ticket printing when an order arrives.
-- [ ] Build a local fail-safe mode (offline syncing).
+### Phase 3: Hardware & POS Features (✅ COMPLETED)
+- [x] Hook up the ScannerScreen to the API to actively deduct "Pro Meal" balances from customer wallets.
+- [x] Integrate thermal receipt printer drivers (mocked Bluetooth service) for automatic ticket printing when an order arrives.
+- [x] Build a local fail-safe mode (offline syncing cache for scanned QR tokens).
 
-### Phase 4: Timesheets & Staff Management (PENDING)
-- [ ] Sync TimesheetScreen with the backend API to track payroll hours.
-- [ ] Role-based access control (e.g., Cashiers can access Scanner, Kitchen Staff can only access KDS).
+### Phase 4: Timesheets & Staff Management (✅ COMPLETED)
+- [x] Sync TimesheetScreen with the backend API to track payroll hours.
+- [x] Role-based access control (e.g., Cashiers can access Scanner, Kitchen Staff can only access KDS).

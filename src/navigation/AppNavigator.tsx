@@ -39,6 +39,9 @@ function CustomDrawerContent(props: any) {
 }
 
 function DrawerNavigator() {
+  const user = useAuthStore(state => state.user);
+  const role = user?.role || 'KITCHEN_STAFF';
+
   return (
     <Drawer.Navigator
       drawerContent={(props) => <CustomDrawerContent {...props} />}
@@ -51,22 +54,28 @@ function DrawerNavigator() {
         drawerStyle: { backgroundColor: '#0f172a', width: 300 },
       }}
     >
-      <Drawer.Screen 
-        name="KDS" 
-        component={KDSScreen} 
-        options={{
-          title: 'Kitchen Display',
-          drawerIcon: ({ color }) => <LayoutDashboard color={color} size={22} />
-        }}
-      />
-      <Drawer.Screen 
-        name="Scanner" 
-        component={ScannerScreen} 
-        options={{
-          title: 'QR Scanner',
-          drawerIcon: ({ color }) => <Camera color={color} size={22} />
-        }}
-      />
+      {(role === 'MANAGER' || role === 'KITCHEN_STAFF') && (
+        <Drawer.Screen 
+          name="KDS" 
+          component={KDSScreen} 
+          options={{
+            title: 'Kitchen Display',
+            drawerIcon: ({ color }) => <LayoutDashboard color={color} size={22} />
+          }}
+        />
+      )}
+      
+      {(role === 'MANAGER' || role === 'CASHIER') && (
+        <Drawer.Screen 
+          name="Scanner" 
+          component={ScannerScreen} 
+          options={{
+            title: 'QR Scanner',
+            drawerIcon: ({ color }) => <Camera color={color} size={22} />
+          }}
+        />
+      )}
+
       <Drawer.Screen 
         name="Timesheets" 
         component={TimesheetScreen} 

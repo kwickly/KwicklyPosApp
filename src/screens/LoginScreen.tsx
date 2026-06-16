@@ -1,81 +1,102 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
-import { useAuthStore } from '../store/useAuth';
+import { View, Text, TouchableOpacity, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
+import { Lock } from 'lucide-react-native';
+import { useAuthStore, StaffRole } from '../store/useAuth';
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const login = useAuthStore(state => state.login);
+  const [pin, setPin] = useState('');
+  const [selectedRole, setSelectedRole] = useState<StaffRole>('MANAGER');
+  const login = useAuthStore((state) => state.login);
 
-  const handleLogin = async () => {
-    if (!email || !password) return;
-    
-    setIsLoading(true);
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(() => resolve(true), 1000));
-    
-    // Mock successful login
-    login('mock-jwt-token', {
-      id: 'staff-1',
-      name: 'Sarah Kitchen',
-      role: 'STAFF'
-    });
-    
-    setIsLoading(false);
+  const handleLogin = () => {
+    if (pin.length >= 4) {
+      login(pin, selectedRole);
+    }
   };
 
-  return (
-    <KeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1 bg-slate-50 justify-center px-8"
+  const handleKeyPress = (num: string) => {
+    if (pin.length < 4) setPin(prev => prev + num);
+  };
+
+  const handleDelete = () => {
+    setPin(prev => prev.slice(0, -1));
+  };
+
+  const RoleButton = ({ role, label }: { role: StaffRole, label: string }) => (
+    <TouchableOpacity 
+      onPress={() => setSelectedRole(role)}
+      className={`px-4 py-2 rounded-lg mx-1 border ${selectedRole === role ? 'bg-indigo-100 border-indigo-500' : 'bg-slate-50 border-slate-200'}`}
     >
-      <View className="max-w-sm w-full mx-auto bg-white p-8 rounded-3xl shadow-xl shadow-slate-200/50">
-        <View className="items-center mb-8">
-          <View className="w-16 h-16 bg-indigo-600 rounded-2xl items-center justify-center mb-4 shadow-lg shadow-indigo-600/30">
-            <Text className="text-white text-3xl font-bold">K</Text>
-          </View>
-          <Text className="text-3xl font-bold text-slate-900 tracking-tight">Kwickly POS</Text>
-          <Text className="text-slate-500 mt-2 text-center">Staff Login Portal</Text>
+      <Text className={`font-bold ${selectedRole === role ? 'text-indigo-700' : 'text-slate-500'}`}>{label}</Text>
+    </TouchableOpacity>
+  );
+
+  return (
+    <SafeAreaView className="flex-1 bg-slate-900 justify-center items-center">
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        className="w-full max-w-sm items-center"
+      >
+        <View className="bg-indigo-500 w-16 h-16 rounded-2xl justify-center items-center mb-6 shadow-lg shadow-indigo-500/30">
+          <Lock color="white" size={32} />
+        </View>
+        <Text className="text-3xl font-bold text-white tracking-tight mb-2">Staff Portal</Text>
+        <Text className="text-slate-400 mb-8">Enter your 4-digit PIN to clock in</Text>
+
+        <View className="flex-row mb-6">
+          <RoleButton role="MANAGER" label="Manager" />
+          <RoleButton role="CASHIER" label="Cashier" />
+          <RoleButton role="KITCHEN_STAFF" label="Kitchen" />
         </View>
 
-        <View className="space-y-4">
-          <View>
-            <Text className="text-sm font-semibold text-slate-700 mb-1.5 ml-1">Email or Staff ID</Text>
-            <TextInput
-              className="bg-slate-50 border border-slate-200 px-4 py-3.5 rounded-xl text-slate-900 text-base"
-              placeholder="e.g. sarah@kwickly.com"
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              keyboardType="email-address"
-            />
-          </View>
+        {/* PIN Display */}
+        <View className="flex-row justify-center mb-10 space-x-4 w-full">
+          {[0, 1, 2, 3].map((index) => (
+            <View 
+              key={index} 
+              className={`w-14 h-16 rounded-xl border-2 items-center justify-center
+                ${pin.length > index ? 'border-indigo-500 bg-slate-800' : 'border-slate-700 bg-slate-800/50'}`}
+            >
+              <Text className="text-white text-3xl font-bold">
+                {pin.length > index ? '•' : ''}
+              </Text>
+            </View>
+          ))}
+        </View>
 
-          <View>
-            <Text className="text-sm font-semibold text-slate-700 mb-1.5 ml-1">Password</Text>
-            <TextInput
-              className="bg-slate-50 border border-slate-200 px-4 py-3.5 rounded-xl text-slate-900 text-base"
-              placeholder="••••••••"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
-          </View>
-
+        {/* Numpad */}
+        <View className="flex-row flex-wrap justify-center w-64">
+          {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((num) => (
+            <TouchableOpacity 
+              key={num} 
+              onPress={() => handleKeyPress(num)}
+              className="w-20 h-20 items-center justify-center m-1 rounded-full bg-slate-800/50"
+            >
+              <Text className="text-white text-3xl font-medium">{num}</Text>
+            </TouchableOpacity>
+          ))}
           <TouchableOpacity 
-            className="bg-indigo-600 py-4 rounded-xl items-center justify-center mt-4 shadow-lg shadow-indigo-600/20"
-            onPress={handleLogin}
-            disabled={isLoading}
+            onPress={handleDelete}
+            className="w-20 h-20 items-center justify-center m-1 rounded-full"
           >
-            {isLoading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text className="text-white text-lg font-bold">Sign In</Text>
-            )}
+            <Text className="text-slate-500 text-xl font-medium">DEL</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            onPress={() => handleKeyPress('0')}
+            className="w-20 h-20 items-center justify-center m-1 rounded-full bg-slate-800/50"
+          >
+            <Text className="text-white text-3xl font-medium">0</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            onPress={handleLogin}
+            disabled={pin.length < 4}
+            className={`w-20 h-20 items-center justify-center m-1 rounded-full ${pin.length >= 4 ? 'bg-indigo-500' : 'bg-slate-800'}`}
+          >
+            <Text className={`text-xl font-bold ${pin.length >= 4 ? 'text-white' : 'text-slate-600'}`}>GO</Text>
           </TouchableOpacity>
         </View>
-      </View>
-    </KeyboardAvoidingView>
+
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }

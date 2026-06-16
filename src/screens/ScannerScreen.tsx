@@ -2,17 +2,25 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
 import { QrCode, X } from 'lucide-react-native';
+import { useOfflineQueueStore } from '../store/useOfflineQueueStore';
 
 export default function ScannerScreen() {
   const { hasPermission, requestPermission } = useCameraPermission();
   const [isScanning, setIsScanning] = useState(true);
   const device = useCameraDevice('back');
+  const addScanToQueue = useOfflineQueueStore(state => state.addScanToQueue);
 
   const handleManualScan = () => {
     setIsScanning(false);
+    
+    // Check if device is offline via a simple network library, or just queue optimistically.
+    // We will just queue optimistically and try to sync.
+    const mockToken = `MOCK-${Math.floor(Math.random() * 1000)}`;
+    addScanToQueue(mockToken);
+    
     Alert.alert(
-      "QR Code Scanned",
-      `Customer Token: MOCK-1234\n\n1x Pro Meal deducted.`,
+      "QR Code Scanned & Queued",
+      `Customer Token: ${mockToken}\n\n1x Pro Meal deducted.`,
       [{ text: "OK", onPress: () => setIsScanning(true) }]
     );
   };

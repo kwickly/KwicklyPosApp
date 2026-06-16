@@ -1,23 +1,31 @@
 import { create } from 'zustand';
 
-interface User {
+export type StaffRole = 'MANAGER' | 'CASHIER' | 'KITCHEN_STAFF';
+
+export interface User {
   id: string;
   name: string;
-  role: 'STAFF' | 'MANAGER';
+  role: StaffRole;
 }
 
 interface AuthState {
-  token: string | null;
   user: User | null;
   isAuthenticated: boolean;
-  login: (token: string, user: User) => void;
+  login: (pin: string, role?: StaffRole) => void;
   logout: () => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  token: null,
   user: null,
   isAuthenticated: false,
-  login: (token, user) => set({ token, user, isAuthenticated: true }),
-  logout: () => set({ token: null, user: null, isAuthenticated: false }),
+  login: (pin, role = 'MANAGER') => {
+    // Mock login logic
+    if (pin.length >= 4) {
+      set({ 
+        user: { id: 'usr_1', name: 'Alex (Staff)', role },
+        isAuthenticated: true 
+      });
+    }
+  },
+  logout: () => set({ user: null, isAuthenticated: false }),
 }));

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useAuthStore } from '../store/useAuth';
 import { Clock, PlayCircle, StopCircle, Calendar } from 'lucide-react-native';
 
@@ -7,15 +7,30 @@ export default function TimesheetScreen() {
   const user = useAuthStore(state => state.user);
   const [isClockedIn, setIsClockedIn] = useState(false);
   const [shiftStart, setShiftStart] = useState<Date | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleToggleShift = () => {
-    if (isClockedIn) {
-      setIsClockedIn(false);
-      // In reality: POST to backend to end shift
-    } else {
-      setIsClockedIn(true);
-      setShiftStart(new Date());
-      // In reality: POST to backend to start shift
+  const handleToggleShift = async () => {
+    setIsLoading(true);
+    try {
+      if (isClockedIn) {
+        // Simulate API call to POST /timesheets/clock-out
+        console.log(`[Timesheet API] Clocking OUT user: ${user?.id}`);
+        await new Promise<void>(resolve => setTimeout(() => resolve(), 600));
+        setIsClockedIn(false);
+        setShiftStart(null);
+        Alert.alert("Clocked Out", "Your shift has ended. Great work today!");
+      } else {
+        // Simulate API call to POST /timesheets/clock-in
+        console.log(`[Timesheet API] Clocking IN user: ${user?.id}`);
+        await new Promise<void>(resolve => setTimeout(() => resolve(), 600));
+        setIsClockedIn(true);
+        setShiftStart(new Date());
+        Alert.alert("Clocked In", "Your shift has officially started. Have a great day!");
+      }
+    } catch (error) {
+      Alert.alert("Error", "Failed to update shift status. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 

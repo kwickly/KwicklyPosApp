@@ -4,25 +4,23 @@ import { Clock, CheckCircle2 } from 'lucide-react-native';
 import { useKDSStore, Ticket } from '../store/useKDSStore';
 import { websocketService } from '../services/websocket';
 
+import { printerService } from '../services/printer';
+
 export default function KDSScreen() {
   const { tickets, isConnected, updateTicketStatus } = useKDSStore();
 
   useEffect(() => {
-    // Connect to WebSocket when the screen mounts
     websocketService.connect();
-
-    return () => {
-      // Clean up connection when screen unmounts
-      websocketService.disconnect();
-    };
+    return () => websocketService.disconnect();
   }, []);
 
   const markAsReady = (id: string) => {
-    // Optimistically update UI via Zustand store
     updateTicketStatus(id, 'READY');
-    
-    // Broadcast status to the Kwickly backend via WS
     websocketService.sendStatusUpdate(id, 'READY');
+  };
+
+  const handlePrint = (item: Ticket) => {
+    printerService.printReceipt(item.id, item.customerName, item.items);
   };
 
   const renderTicket = ({ item }: { item: Ticket }) => (
@@ -31,8 +29,13 @@ export default function KDSScreen() {
       <View className={`p-4 rounded-t-2xl border-b ${item.status === 'READY' ? 'bg-emerald-50 border-emerald-100' : 'bg-slate-50 border-slate-100'}`}>
         <View className="flex-row justify-between items-center mb-1">
           <Text className="text-lg font-bold text-slate-900">#{item.id.split('-')[1]}</Text>
-          <View className="bg-indigo-100 px-2 py-1 rounded-md">
-            <Text className="text-indigo-700 text-xs font-bold">{item.type}</Text>
+          <View className="flex-row items-center">
+            <TouchableOpacity onPress={() => handlePrint(item)} className="mr-3 bg-slate-200 p-1.5 rounded-md">
+              <Text className="text-xs">🖨️</Text>
+            </TouchableOpacity>
+            <View className="bg-indigo-100 px-2 py-1 rounded-md">
+              <Text className="text-indigo-700 text-xs font-bold">{item.type}</Text>
+            </View>
           </View>
         </View>
         <Text className="text-slate-600 font-medium">{item.customerName}</Text>
