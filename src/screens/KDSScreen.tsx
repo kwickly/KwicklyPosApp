@@ -1,48 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, SafeAreaView, ActivityIndicator } from 'react-native';
 import { Clock, CheckCircle2 } from 'lucide-react-native';
-
-interface Ticket {
-  id: string;
-  customerName: string;
-  items: { name: string; quantity: number }[];
-  status: 'PREPARING' | 'READY';
-  timestamp: string;
-  type: 'DINE_IN' | 'TAKEAWAY' | 'DELIVERY';
-}
-
-const MOCK_TICKETS: Ticket[] = [
-  {
-    id: 'ORD-1092',
-    customerName: 'John Doe',
-    items: [{ name: 'Spicy Chicken Bowl', quantity: 1 }, { name: 'Mango Lassi', quantity: 1 }],
-    status: 'PREPARING',
-    timestamp: '1:15 PM',
-    type: 'DINE_IN'
-  },
-  {
-    id: 'ORD-1093',
-    customerName: 'Alice Smith',
-    items: [{ name: 'Vegetarian Pasta (Sub)', quantity: 1 }],
-    status: 'PREPARING',
-    timestamp: '1:18 PM',
-    type: 'TAKEAWAY'
-  }
-];
+import { useKDSStore, Ticket } from '../store/useKDSStore';
+import { websocketService } from '../services/websocket';
 
 export default function KDSScreen() {
-  const [tickets, setTickets] = useState<Ticket[]>(MOCK_TICKETS);
-  const [isConnected, setIsConnected] = useState(false);
+  const { tickets, isConnected, updateTicketStatus } = useKDSStore();
 
   useEffect(() => {
-    // Simulate WebSocket connection
-    const timer = setTimeout(() => setIsConnected(true), 1500);
-    return () => clearTimeout(timer);
+    // Connect to WebSocket when the screen mounts
+    websocketService.connect();
+
+    return () => {
+      // Clean up connection when screen unmounts
+      websocketService.disconnect();
+    };
   }, []);
 
   const markAsReady = (id: string) => {
-    setTickets(prev => prev.map(t => t.id === id ? { ...t, status: 'READY' } : t));
-    // In reality, this would send a WS message to update the backend and notify the customer
+    // Optimistically update UI via Zustand store
+    updateTicketStatus(id, 'READY');
+    
+    // Broadcast status to the Kwickly backend via WS
+    websocketService.sendStatusUpdate(id, 'READY');
   };
 
   const renderTicket = ({ item }: { item: Ticket }) => (
@@ -104,7 +84,11 @@ export default function KDSScreen() {
         </View>
       </View>
 
-      {isConnected ? (
+      {isConnected && tickets.length === 0 ? (
+        <View className="flex-1 items-center justify-center">
+          <Text className="text-slate-500 font-medium text-lg">No active orders right now.</Text>
+        </View>
+      ) : isConnected || tickets.length > 0 ? (
         <FlatList
           data={tickets}
           keyExtractor={(item) => item.id}

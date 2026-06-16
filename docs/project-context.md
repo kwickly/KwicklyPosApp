@@ -29,11 +29,11 @@ This app is a critical piece of the Kwickly micro-frontend ecosystem, communicat
 - [x] **Timesheets UI:** (`/src/screens/TimesheetScreen.tsx`) Portal for staff to track their hours and clock in/out.
 - [x] Verify strict TypeScript compilation with 0 errors.
 
-### Phase 2: KDS Real-Time Integration (PENDING)
-- [ ] Connect KDSScreen to the Kwickly WebSocket Server for real-time ticket ingestion.
-- [ ] Implement exponential backoff for Socket resiliency (porting logic from `kwickly-admin-web`).
-- [ ] Implement local caching/storage so tickets aren't lost if the tablet loses power.
-- [ ] Send status updates (e.g., `PREPARING` -> `READY`) back to the server to notify the customer app.
+### Phase 2: KDS Real-Time Integration (✅ COMPLETED)
+- [x] Connect KDSScreen to the Kwickly WebSocket Server for real-time ticket ingestion.
+- [x] Implement exponential backoff for Socket resiliency (porting logic from `kwickly-admin-web`).
+- [x] Implement local caching/storage so tickets aren't lost if the tablet loses power.
+- [x] Send status updates (e.g., `PREPARING` -> `READY`) back to the server to notify the customer app.
 
 ### Phase 3: Hardware & POS Features (PENDING)
 - [ ] Hook up the ScannerScreen to the API to actively deduct "Pro Meal" balances from customer wallets.
