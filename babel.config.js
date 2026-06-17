@@ -1,7 +1,9 @@
-module.exports = {
-  presets: ['module:@react-native/babel-preset'],
-  plugins: [
-    'nativewind/babel',
-    'react-native-reanimated/plugin',
-  ],
+module.exports = function (api) {
+  const isTest = api.env('test');
+  return {
+    presets: ['module:@react-native/babel-preset'],
+    plugins: isTest
+      ? ['react-native-reanimated/plugin']
+      : ['nativewind/babel', 'react-native-reanimated/plugin'],
+  };
 };

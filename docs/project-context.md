@@ -43,3 +43,8 @@ This app is a critical piece of the Kwickly micro-frontend ecosystem, communicat
 ### Phase 4: Timesheets & Staff Management (✅ COMPLETED)
 - [x] Sync TimesheetScreen with the backend API to track payroll hours.
 - [x] Role-based access control (e.g., Cashiers can access Scanner, Kitchen Staff can only access KDS).
+
+### Phase 5: Automated Testing (⏳ PENDING)
+- [ ] Install `jest` and `@testing-library/react-native`.
+- [ ] Write unit tests for Offline Scanner Queue resilience.
+- [ ] Verify test suite passes with 0 failures.
